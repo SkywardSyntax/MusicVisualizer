@@ -14,10 +14,20 @@ function App() {
     const canvasCtx = canvas.getContext('2d');
     const audio = audioRef.current;
 
-    audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
-    analyserRef.current = audioContextRef.current.createAnalyser();
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    if (!analyserRef.current) {
+      analyserRef.current = audioContextRef.current.createAnalyser();
+    }
+
     const source = audioContextRef.current.createMediaElementSource(audio);
-    source.connect(analyserRef.current);
+
+    if (!source.mediaElement) {
+      source.connect(analyserRef.current);
+    }
+
     analyserRef.current.connect(audioContextRef.current.destination);
     analyserRef.current.fftSize = 256;
     bufferLengthRef.current = analyserRef.current.frequencyBinCount;
