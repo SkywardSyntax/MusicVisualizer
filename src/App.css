@@ -29,3 +29,8 @@
 .small {
   font-size: 0.75rem;
 }
+
+canvas {
+  border: 1px solid #ffffff;
+  margin-top: 20px;
+}
