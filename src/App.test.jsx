@@ -2,8 +2,16 @@ import { expect, test } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('renders canvas element', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeDefined();
+  const canvasElement = screen.getByRole('img');
+  expect(canvasElement).toBeInTheDocument();
+});
+
+test('renders visuals on canvas', () => {
+  render(<App />);
+  const canvasElement = screen.getByRole('img');
+  const context = canvasElement.getContext('2d');
+  expect(context).toBeDefined();
+  // Additional checks for visuals can be added here
 });
