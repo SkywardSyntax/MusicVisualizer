@@ -9,6 +9,7 @@ function App() {
   const dataArrayRef = useRef(null);
   const bufferLengthRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [audioSrc, setAudioSrc] = useState(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -65,19 +66,28 @@ function App() {
       // You might stop the source here if needed
       // source.stop(); 
     };
-  }, []); // Run this effect only once on mount
+  }, [isPlaying]); // Run this effect only once on mount
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const objectUrl = URL.createObjectURL(file);
+      setAudioSrc(objectUrl);
+    }
+  };
 
   return (
     <div className="App">
       <header className="App-header">
         <h1>Music Visualizer</h1>
+        <input type="file" accept="audio/*" onChange={handleFileChange} />
         <canvas ref={canvasRef} width="800" height="400"></canvas>
         <audio
           ref={audioRef}
           controls
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
-          src="/src/audio.mp3" // Correct path here
+          src={audioSrc}
         >
           Your browser does not support the audio element.
         </audio>
