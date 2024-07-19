@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
 
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+const analyser = audioContext.createAnalyser();
+
 function App() {
   const canvasRef = useRef(null);
   const audioRef = useRef(null);
-  const audioContextRef = useRef(null);
-  const analyserRef = useRef(null);
   const dataArrayRef = useRef(null);
   const bufferLengthRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -16,29 +17,17 @@ function App() {
     const canvasCtx = canvas.getContext('2d');
     const audio = audioRef.current;
 
-    // Initialize audio context outside to prevent re-creation
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    if (!dataArrayRef.current) {
+      analyser.fftSize = 256;
+      bufferLengthRef.current = analyser.frequencyBinCount;
+      dataArrayRef.current = new Uint8Array(bufferLengthRef.current);
     }
-
-    if (!analyserRef.current) {
-      analyserRef.current = audioContextRef.current.createAnalyser();
-    }
-
-    // Connect source only once
-    const source = audioContextRef.current.createMediaElementSource(audio);
-    source.connect(analyserRef.current);
-    analyserRef.current.connect(audioContextRef.current.destination);
-
-    analyserRef.current.fftSize = 256;
-    bufferLengthRef.current = analyserRef.current.frequencyBinCount;
-    dataArrayRef.current = new Uint8Array(bufferLengthRef.current);
 
     const draw = () => {
       requestAnimationFrame(draw);
 
       if (isPlaying) {
-        analyserRef.current.getByteFrequencyData(dataArrayRef.current);
+        analyser.getByteFrequencyData(dataArrayRef.current);
 
         canvasCtx.fillStyle = 'rgb(0, 0, 0)';
         canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
@@ -60,19 +49,22 @@ function App() {
 
     draw();
 
-    // IMPORTANT: Remove the audioContext.close() from here! 
-    // It should not be closed in this useEffect
     return () => {
       // You might stop the source here if needed
       // source.stop(); 
     };
-  }, [isPlaying]); // Run this effect only once on mount
+  }, [isPlaying]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       const objectUrl = URL.createObjectURL(file);
       setAudioSrc(objectUrl);
+
+      const audio = audioRef.current;
+      const source = audioContext.createMediaElementSource(audio);
+      source.connect(analyser);
+      analyser.connect(audioContext.destination);
     }
   };
 
