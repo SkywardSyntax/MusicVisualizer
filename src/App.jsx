@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
+import { CSSTransition } from 'react-transition-group';
 
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 const analyser = audioContext.createAnalyser();
@@ -69,22 +70,34 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Music Visualizer</h1>
-        <div className="file-input">
-          <input type="file" accept="audio/*" onChange={handleFileChange} />
-        </div>
-        <canvas ref={canvasRef} width="800" height="400"></canvas>
-        <div className="audio-controls">
-          <audio
-            ref={audioRef}
-            controls
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            src={audioSrc}
-          >
-            Your browser does not support the audio element.
-          </audio>
-        </div>
+        <CSSTransition in={true} appear={true} timeout={1000} classNames="fade">
+          <div className="chip">
+            <h1>Music Visualizer</h1>
+          </div>
+        </CSSTransition>
+        <CSSTransition in={true} appear={true} timeout={1000} classNames="fade">
+          <div className="chip file-input">
+            <input type="file" accept="audio/*" onChange={handleFileChange} />
+          </div>
+        </CSSTransition>
+        <CSSTransition in={true} appear={true} timeout={1000} classNames="fade">
+          <div className="chip">
+            <canvas ref={canvasRef} width="800" height="400"></canvas>
+          </div>
+        </CSSTransition>
+        <CSSTransition in={true} appear={true} timeout={1000} classNames="fade">
+          <div className="chip audio-controls">
+            <audio
+              ref={audioRef}
+              controls
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              src={audioSrc}
+            >
+              Your browser does not support the audio element.
+            </audio>
+          </div>
+        </CSSTransition>
       </header>
     </div>
   );
