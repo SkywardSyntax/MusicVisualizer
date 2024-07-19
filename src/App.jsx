@@ -18,14 +18,12 @@ function App() {
     const audio = audioRef.current;
 
     if (!dataArrayRef.current) {
-      analyser.fftSize = 256;
+      analyser.fftSize = 512;
       bufferLengthRef.current = analyser.frequencyBinCount;
       dataArrayRef.current = new Uint8Array(bufferLengthRef.current);
     }
 
     const draw = () => {
-      requestAnimationFrame(draw);
-
       if (isPlaying) {
         analyser.getByteFrequencyData(dataArrayRef.current);
 
@@ -47,11 +45,14 @@ function App() {
       }
     };
 
-    draw();
+    const drawInterval = setInterval(draw, 1000 / 30); // Update canvas 30 times per second
 
     return () => {
-      // You might stop the source here if needed
-      // source.stop(); 
+      clearInterval(drawInterval);
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
     };
   }, [isPlaying]);
 
