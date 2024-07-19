@@ -8,7 +8,7 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -32,5 +32,20 @@
 
 canvas {
   border: 1px solid #ffffff;
+  margin-top: 20px;
+}
+
+.visualizer-bar {
+  transition: height 0.2s ease;
+}
+
+.audio-controls {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.file-input {
   margin-top: 20px;
 }

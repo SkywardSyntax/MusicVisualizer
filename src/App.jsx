@@ -80,17 +80,21 @@ function App() {
     <div className="App">
       <header className="App-header">
         <h1>Music Visualizer</h1>
-        <input type="file" accept="audio/*" onChange={handleFileChange} />
+        <div className="file-input">
+          <input type="file" accept="audio/*" onChange={handleFileChange} />
+        </div>
         <canvas ref={canvasRef} width="800" height="400"></canvas>
-        <audio
-          ref={audioRef}
-          controls
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-          src={audioSrc}
-        >
-          Your browser does not support the audio element.
-        </audio>
+        <div className="audio-controls">
+          <audio
+            ref={audioRef}
+            controls
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            src={audioSrc}
+          >
+            Your browser does not support the audio element.
+          </audio>
+        </div>
       </header>
     </div>
   );
