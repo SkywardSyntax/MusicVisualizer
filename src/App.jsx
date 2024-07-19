@@ -69,6 +69,49 @@ function App() {
     }
   };
 
+  const handlePlay = () => {
+    audioRef.current.play();
+    setIsPlaying(true);
+  };
+
+  const handlePause = () => {
+    audioRef.current.pause();
+    setIsPlaying(false);
+  };
+
+  const handleRestart = () => {
+    audioRef.current.currentTime = 0;
+    audioRef.current.play();
+    setIsPlaying(true);
+  };
+
+  const handleKeyDown = (event) => {
+    const audio = audioRef.current;
+    switch (event.key) {
+      case 'ArrowRight':
+        audio.currentTime += 5;
+        break;
+      case 'l':
+        audio.currentTime += 10;
+        break;
+      case 'ArrowLeft':
+        audio.currentTime -= 5;
+        break;
+      case 'j':
+        audio.currentTime -= 10;
+        break;
+      default:
+        break;
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   return (
     <div className="App">
       <header className="App-header">
@@ -99,13 +142,10 @@ function App() {
         </CSSTransition>
         <CSSTransition in={true} appear={true} timeout={1000} classNames="fade">
           <div className="chip audio-controls">
-            <audio
-              ref={audioRef}
-              controls
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-              src={audioSrc}
-            >
+            <button onClick={handlePlay} disabled={isPlaying}>Play</button>
+            <button onClick={handlePause} disabled={!isPlaying}>Pause</button>
+            <button onClick={handleRestart}>Restart</button>
+            <audio ref={audioRef} src={audioSrc}>
               Your browser does not support the audio element.
             </audio>
           </div>

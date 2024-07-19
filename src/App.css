@@ -133,3 +133,28 @@ canvas {
   text-align: center;
   transition: background-color 0.3s ease;
 }
+
+.audio-controls button {
+  background-color: #61dafb;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  border-radius: 12px;
+}
+
+.audio-controls button:hover {
+  background-color: white;
+  color: black;
+}
+
+.audio-controls button:active {
+  background-color: #21a1f1;
+  color: white;
+}
