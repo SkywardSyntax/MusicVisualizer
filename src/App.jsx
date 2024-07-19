@@ -71,11 +71,17 @@ function App() {
 
   const handlePlay = async () => {
     try {
-      await audioContext.resume();
-      setIsPlaying(true);
+      if (audioRef.current.paused) {
+        await audioContext.resume();
+        setIsPlaying(true);
+      }
     } catch (error) {
       console.error('Error resuming audio context:', error);
     }
+  };
+
+  const handlePause = () => {
+    setIsPlaying(false);
   };
 
   return (
@@ -91,7 +97,7 @@ function App() {
             ref={audioRef}
             controls
             onPlay={handlePlay}
-            onPause={() => setIsPlaying(false)}
+            onPause={handlePause}
             src={audioSrc}
           >
             Your browser does not support the audio element.
