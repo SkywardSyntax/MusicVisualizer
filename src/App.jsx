@@ -26,24 +26,22 @@ function App() {
     const draw = () => {
       requestAnimationFrame(draw);
 
-      if (isPlaying) {
-        analyser.getByteFrequencyData(dataArrayRef.current);
+      analyser.getByteFrequencyData(dataArrayRef.current);
 
-        canvasCtx.fillStyle = 'rgb(0, 0, 0)';
-        canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+      canvasCtx.fillStyle = 'rgb(0, 0, 0)';
+      canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
-        const barWidth = (canvas.width / bufferLengthRef.current) * 2.5;
-        let barHeight;
-        let x = 0;
+      const barWidth = (canvas.width / bufferLengthRef.current) * 2.5;
+      let barHeight;
+      let x = 0;
 
-        for (let i = 0; i < bufferLengthRef.current; i++) {
-          barHeight = dataArrayRef.current[i];
+      for (let i = 0; i < bufferLengthRef.current; i++) {
+        barHeight = dataArrayRef.current[i];
 
-          canvasCtx.fillStyle = 'rgb(' + (barHeight + 100) + ',50,50)';
-          canvasCtx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
+        canvasCtx.fillStyle = 'rgb(' + (barHeight + 100) + ',50,50)';
+        canvasCtx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
 
-          x += barWidth + 1;
-        }
+        x += barWidth + 1;
       }
     };
 
@@ -53,7 +51,7 @@ function App() {
       // You might stop the source here if needed
       // source.stop(); 
     };
-  }, [isPlaying]);
+  }, [audioSrc]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
