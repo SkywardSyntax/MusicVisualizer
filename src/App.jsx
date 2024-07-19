@@ -4,6 +4,9 @@ import { CSSTransition } from 'react-transition-group';
 
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 const analyser = audioContext.createAnalyser();
+const gainNode = audioContext.createGain();
+const pitchNode = audioContext.createBiquadFilter();
+pitchNode.type = 'allpass';
 
 function App() {
   const canvasRef = useRef(null);
@@ -15,6 +18,8 @@ function App() {
   const [selectedSongTitle, setSelectedSongTitle] = useState('');
   const [sensitivity, setSensitivity] = useState(1);
   const [prevDataArray, setPrevDataArray] = useState(null);
+  const [volume, setVolume] = useState(1);
+  const [pitch, setPitch] = useState(1);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -75,7 +80,9 @@ function App() {
 
       const audio = audioRef.current;
       const source = audioContext.createMediaElementSource(audio);
-      source.connect(analyser);
+      source.connect(gainNode);
+      gainNode.connect(pitchNode);
+      pitchNode.connect(analyser);
       analyser.connect(audioContext.destination);
     }
   };
@@ -118,6 +125,18 @@ function App() {
 
   const handleSensitivityChange = (event) => {
     setSensitivity(event.target.value);
+  };
+
+  const handleVolumeChange = (event) => {
+    const newVolume = event.target.value;
+    setVolume(newVolume);
+    gainNode.gain.value = newVolume;
+  };
+
+  const handlePitchChange = (event) => {
+    const newPitch = event.target.value;
+    setPitch(newPitch);
+    pitchNode.frequency.value = newPitch * 1000;
   };
 
   useEffect(() => {
@@ -176,6 +195,36 @@ function App() {
                 step="0.1"
                 value={sensitivity}
                 onChange={handleSensitivityChange}
+              />
+            </label>
+          </div>
+        </CSSTransition>
+        <CSSTransition in={true} appear={true} timeout={1000} classNames="fade">
+          <div className="chip">
+            <label>
+              Volume:
+              <input
+                type="range"
+                min="0"
+                max="2"
+                step="0.01"
+                value={volume}
+                onChange={handleVolumeChange}
+              />
+            </label>
+          </div>
+        </CSSTransition>
+        <CSSTransition in={true} appear={true} timeout={1000} classNames="fade">
+          <div className="chip">
+            <label>
+              Pitch:
+              <input
+                type="range"
+                min="0.5"
+                max="2"
+                step="0.01"
+                value={pitch}
+                onChange={handlePitchChange}
               />
             </label>
           </div>

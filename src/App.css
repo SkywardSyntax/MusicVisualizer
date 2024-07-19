@@ -159,3 +159,17 @@ canvas {
   background-color: #21a1f1;
   color: white;
 }
+
+.volume-control {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pitch-control {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

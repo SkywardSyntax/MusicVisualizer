@@ -7,6 +7,7 @@ This is a simple music visualizer application built using React and the Web Audi
 - Visualizes audio data in real-time
 - Supports audio playback from a local file
 - Responsive design
+- Adjust volume and pitch of the audio playback
 
 ## Getting Started
 
@@ -49,6 +50,8 @@ This will start the development server and open the application in your default 
 1. Open the application in your web browser.
 2. Click the "Choose File" button to select an audio file from your local system.
 3. The audio file will start playing, and the visualizer will display the audio data in real-time.
+4. Use the volume control to adjust the audio playback volume.
+5. Use the pitch control to adjust the audio playback pitch.
 
 ### Building for Production
 
