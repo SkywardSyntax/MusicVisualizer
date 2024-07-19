@@ -18,12 +18,14 @@ function App() {
     const audio = audioRef.current;
 
     if (!dataArrayRef.current) {
-      analyser.fftSize = 512;
+      analyser.fftSize = 256;
       bufferLengthRef.current = analyser.frequencyBinCount;
       dataArrayRef.current = new Uint8Array(bufferLengthRef.current);
     }
 
     const draw = () => {
+      requestAnimationFrame(draw);
+
       if (isPlaying) {
         analyser.getByteFrequencyData(dataArrayRef.current);
 
@@ -45,14 +47,11 @@ function App() {
       }
     };
 
-    const drawInterval = setInterval(draw, 1000 / 30); // Update canvas 30 times per second
+    draw();
 
     return () => {
-      clearInterval(drawInterval);
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-      }
+      // You might stop the source here if needed
+      // source.stop(); 
     };
   }, [isPlaying]);
 
@@ -69,21 +68,6 @@ function App() {
     }
   };
 
-  const handlePlay = async () => {
-    try {
-      if (audioRef.current.paused) {
-        await audioContext.resume();
-        setIsPlaying(true);
-      }
-    } catch (error) {
-      console.error('Error resuming audio context:', error);
-    }
-  };
-
-  const handlePause = () => {
-    setIsPlaying(false);
-  };
-
   return (
     <div className="App">
       <header className="App-header">
@@ -96,8 +80,8 @@ function App() {
           <audio
             ref={audioRef}
             controls
-            onPlay={handlePlay}
-            onPause={handlePause}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
             src={audioSrc}
           >
             Your browser does not support the audio element.
