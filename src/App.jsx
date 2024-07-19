@@ -14,6 +14,7 @@ function App() {
   const [audioSrc, setAudioSrc] = useState(null);
   const [selectedSongTitle, setSelectedSongTitle] = useState('');
   const [sensitivity, setSensitivity] = useState(1);
+  const [prevDataArray, setPrevDataArray] = useState(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -31,21 +32,30 @@ function App() {
 
       analyser.getByteFrequencyData(dataArrayRef.current);
 
-      canvasCtx.fillStyle = 'rgb(0, 0, 0)';
-      canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+      canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
 
       const barWidth = (canvas.width / bufferLengthRef.current) * 2.5;
       let barHeight;
       let x = 0;
 
+      const gradient = canvasCtx.createLinearGradient(0, 0, canvas.width, 0);
+      gradient.addColorStop(0, 'green');
+      gradient.addColorStop(1, 'red');
+
       for (let i = 0; i < bufferLengthRef.current; i++) {
         barHeight = dataArrayRef.current[i] * sensitivity;
 
-        canvasCtx.fillStyle = 'rgb(' + (barHeight + 100) + ',50,50)';
+        if (prevDataArray && Math.abs(barHeight - prevDataArray[i]) < 5) {
+          continue;
+        }
+
+        canvasCtx.fillStyle = gradient;
         canvasCtx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
 
         x += barWidth + 1;
       }
+
+      setPrevDataArray([...dataArrayRef.current]);
     };
 
     draw();

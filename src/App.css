@@ -37,6 +37,7 @@ canvas {
 
 .visualizer-bar {
   transition: height 0.2s ease;
+  background: linear-gradient(to right, green, red);
 }
 
 .audio-controls {
