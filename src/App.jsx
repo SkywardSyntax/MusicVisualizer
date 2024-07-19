@@ -69,6 +69,15 @@ function App() {
     }
   };
 
+  const handlePlay = async () => {
+    try {
+      await audioContext.resume();
+      setIsPlaying(true);
+    } catch (error) {
+      console.error('Error resuming audio context:', error);
+    }
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -81,7 +90,7 @@ function App() {
           <audio
             ref={audioRef}
             controls
-            onPlay={() => setIsPlaying(true)}
+            onPlay={handlePlay}
             onPause={() => setIsPlaying(false)}
             src={audioSrc}
           >
