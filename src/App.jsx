@@ -19,7 +19,8 @@ function App() {
   const [sensitivity, setSensitivity] = useState(1);
   const [prevDataArray, setPrevDataArray] = useState(null);
   const [volume, setVolume] = useState(1);
-  const [pitch, setPitch] = useState(1);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -54,13 +55,6 @@ function App() {
           continue;
         }
 
-        // Adjust bar height based on pitch
-        if (pitch > 1) {
-          barHeight *= (i / bufferLengthRef.current) * (pitch - 1) + 1;
-        } else {
-          barHeight *= 1 - (i / bufferLengthRef.current) * (1 - pitch);
-        }
-
         canvasCtx.fillStyle = gradient;
         canvasCtx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
 
@@ -76,7 +70,7 @@ function App() {
       // You might stop the source here if needed
       // source.stop(); 
     };
-  }, [audioSrc, sensitivity, pitch]);
+  }, [audioSrc, sensitivity]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -140,16 +134,23 @@ function App() {
     gainNode.gain.value = newVolume;
   };
 
-  const handlePitchChange = (event) => {
-    const newPitch = event.target.value;
-    setPitch(newPitch);
-    audioRef.current.playbackRate = newPitch;
-  };
-
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    const updateProgress = () => {
+      setCurrentTime(audio.currentTime);
+      setDuration(audio.duration);
+    };
+
+    audio.addEventListener('timeupdate', updateProgress);
+    return () => {
+      audio.removeEventListener('timeupdate', updateProgress);
     };
   }, []);
 
@@ -223,17 +224,12 @@ function App() {
         </CSSTransition>
         <CSSTransition in={true} appear={true} timeout={1000} classNames="fade">
           <div className="chip">
-            <label>
-              Pitch:
-              <input
-                type="range"
-                min="0.5"
-                max="2"
-                step="0.01"
-                value={pitch}
-                onChange={handlePitchChange}
-              />
-            </label>
+            <div className="duration-display">
+              {Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60)} / {Math.floor(duration / 60)}:{Math.floor(duration % 60)}
+            </div>
+            <div className="progress-bar">
+              <div className="progress" style={{ width: `${(currentTime / duration) * 100}%` }}></div>
+            </div>
           </div>
         </CSSTransition>
       </header>
