@@ -54,6 +54,13 @@ function App() {
           continue;
         }
 
+        // Adjust bar height based on pitch
+        if (pitch > 1) {
+          barHeight *= (i / bufferLengthRef.current) * (pitch - 1) + 1;
+        } else {
+          barHeight *= 1 - (i / bufferLengthRef.current) * (1 - pitch);
+        }
+
         canvasCtx.fillStyle = gradient;
         canvasCtx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
 
@@ -69,7 +76,7 @@ function App() {
       // You might stop the source here if needed
       // source.stop(); 
     };
-  }, [audioSrc, sensitivity]);
+  }, [audioSrc, sensitivity, pitch]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -136,7 +143,7 @@ function App() {
   const handlePitchChange = (event) => {
     const newPitch = event.target.value;
     setPitch(newPitch);
-    pitchNode.frequency.value = newPitch * 1000;
+    audioRef.current.playbackRate = newPitch;
   };
 
   useEffect(() => {
