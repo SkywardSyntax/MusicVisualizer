@@ -13,6 +13,7 @@ function App() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioSrc, setAudioSrc] = useState(null);
   const [selectedSongTitle, setSelectedSongTitle] = useState('');
+  const [sensitivity, setSensitivity] = useState(1);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -38,7 +39,7 @@ function App() {
       let x = 0;
 
       for (let i = 0; i < bufferLengthRef.current; i++) {
-        barHeight = dataArrayRef.current[i];
+        barHeight = dataArrayRef.current[i] * sensitivity;
 
         canvasCtx.fillStyle = 'rgb(' + (barHeight + 100) + ',50,50)';
         canvasCtx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
@@ -53,7 +54,7 @@ function App() {
       // You might stop the source here if needed
       // source.stop(); 
     };
-  }, [audioSrc]);
+  }, [audioSrc, sensitivity]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -105,6 +106,10 @@ function App() {
     }
   };
 
+  const handleSensitivityChange = (event) => {
+    setSensitivity(event.target.value);
+  };
+
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => {
@@ -148,6 +153,21 @@ function App() {
             <audio ref={audioRef} src={audioSrc}>
               Your browser does not support the audio element.
             </audio>
+          </div>
+        </CSSTransition>
+        <CSSTransition in={true} appear={true} timeout={1000} classNames="fade">
+          <div className="chip">
+            <label>
+              Sensitivity:
+              <input
+                type="range"
+                min="0.1"
+                max="5"
+                step="0.1"
+                value={sensitivity}
+                onChange={handleSensitivityChange}
+              />
+            </label>
           </div>
         </CSSTransition>
       </header>
