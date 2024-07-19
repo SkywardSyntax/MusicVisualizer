@@ -12,6 +12,7 @@ function App() {
   const bufferLengthRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioSrc, setAudioSrc] = useState(null);
+  const [selectedSongTitle, setSelectedSongTitle] = useState('');
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -59,6 +60,7 @@ function App() {
     if (file) {
       const objectUrl = URL.createObjectURL(file);
       setAudioSrc(objectUrl);
+      setSelectedSongTitle(file.name);
 
       const audio = audioRef.current;
       const source = audioContext.createMediaElementSource(audio);
@@ -77,9 +79,19 @@ function App() {
         </CSSTransition>
         <CSSTransition in={true} appear={true} timeout={1000} classNames="fade">
           <div className="chip file-input">
-            <input type="file" accept="audio/*" onChange={handleFileChange} />
+            <label className="file-input-label">
+              Choose File
+              <input type="file" accept="audio/*" onChange={handleFileChange} />
+            </label>
           </div>
         </CSSTransition>
+        {selectedSongTitle && (
+          <CSSTransition in={true} appear={true} timeout={1000} classNames="fade">
+            <div className="chip selected-song-chip">
+              {selectedSongTitle}
+            </div>
+          </CSSTransition>
+        )}
         <CSSTransition in={true} appear={true} timeout={1000} classNames="fade">
           <div className="chip">
             <canvas ref={canvasRef} width="800" height="400"></canvas>

@@ -48,6 +48,27 @@ canvas {
 
 .file-input {
   margin-top: 20px;
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 16px;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 1s ease-in-out, slideIn 0.5s ease-in-out;
+  cursor: pointer;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+.file-input:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.file-input input[type="file"] {
+  display: none;
 }
 
 .frosted-glass {
@@ -84,4 +105,31 @@ canvas {
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   animation: fadeIn 1s ease-in-out, slideIn 0.5s ease-in-out;
+  cursor: pointer;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+.chip:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.selected-song-chip {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  margin: 0.5rem;
+  border-radius: 16px;
+  background-color: rgba(0, 123, 255, 0.1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 1s ease-in-out, slideIn 0.5s ease-in-out;
+  cursor: default;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  transition: background-color 0.3s ease;
 }
