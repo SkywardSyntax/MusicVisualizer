@@ -89,8 +89,13 @@ function App() {
   };
 
   const handlePlay = () => {
-    audioRef.current.play();
-    setIsPlaying(true);
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+    if (audioRef.current.paused) {
+      audioRef.current.play();
+      setIsPlaying(true);
+    }
   };
 
   const handlePause = () => {
@@ -134,12 +139,20 @@ function App() {
     gainNode.gain.value = newVolume;
   };
 
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === 'visible' && isPlaying) {
+      handlePlay();
+    }
+  };
+
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, []);
+  }, [isPlaying]);
 
   useEffect(() => {
     const audio = audioRef.current;
