@@ -45,6 +45,7 @@ canvas {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .file-input {
@@ -132,7 +133,11 @@ canvas {
   font-size: 1rem;
   font-weight: bold;
   text-align: center;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, width 0.3s ease;
+}
+
+.selected-song-chip:hover {
+  width: 100%;
 }
 
 .audio-controls button {
