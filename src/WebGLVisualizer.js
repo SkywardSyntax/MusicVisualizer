@@ -12,6 +12,8 @@ class WebGLVisualizer {
       alert('Your browser does not support WebGL');
     }
 
+    this.numPoints = 512; // Increased for smoother waveform
+    this.frequencyData = new Uint8Array(analyser.frequencyBinCount);
     this.init();
   }
 
@@ -20,40 +22,37 @@ class WebGLVisualizer {
 
     // Vertex shader program
     const vsSource = `
-      attribute vec4 aVertexPosition;
+      attribute vec2 aVertexPosition;
+      attribute float aFrequency;
+
+      varying lowp float vFrequency;
+
       void main(void) {
-        gl_Position = aVertexPosition;
+        gl_Position = vec4(aVertexPosition, 0.0, 1.0);
+        vFrequency = aFrequency;
       }
     `;
 
     // Fragment shader program
     const fsSource = `
       precision mediump float;
-      uniform float uFrequency;
+      varying lowp float vFrequency;
+
       void main(void) {
-        gl_FragColor = vec4(uFrequency, 0.0, 0.0, 1.0);
+        gl_FragColor = vec4(vFrequency, 0.0, 1.0 - vFrequency, 1.0);
       }
     `;
 
-    // Initialize a shader program; this is where all the lighting
-    // for the vertices and so forth is established.
     const shaderProgram = this.initShaderProgram(gl, vsSource, fsSource);
 
-    // Collect all the info needed to use the shader program.
-    // Look up which attribute our shader program is using
-    // for aVertexPosition and look up uniform locations.
     this.programInfo = {
       program: shaderProgram,
       attribLocations: {
         vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
-      },
-      uniformLocations: {
-        frequency: gl.getUniformLocation(shaderProgram, 'uFrequency'),
+        frequency: gl.getAttribLocation(shaderProgram, 'aFrequency'),
       },
     };
 
-    // Here's where we call the routine that builds all the
-    // objects we'll be drawing.
     this.buffers = this.initBuffers(gl);
   }
 
@@ -61,13 +60,11 @@ class WebGLVisualizer {
     const vertexShader = this.loadShader(gl, gl.VERTEX_SHADER, vsSource);
     const fragmentShader = this.loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
 
-    // Create the shader program
     const shaderProgram = gl.createProgram();
     gl.attachShader(shaderProgram, vertexShader);
     gl.attachShader(shaderProgram, fragmentShader);
     gl.linkProgram(shaderProgram);
 
-    // If creating the shader program failed, alert
     if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
       console.error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
       return null;
@@ -78,14 +75,9 @@ class WebGLVisualizer {
 
   loadShader(gl, type, source) {
     const shader = gl.createShader(type);
-
-    // Send the source to the shader object
     gl.shaderSource(shader, source);
-
-    // Compile the shader program
     gl.compileShader(shader);
 
-    // See if it compiled successfully
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
       console.error('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
       gl.deleteShader(shader);
@@ -96,86 +88,68 @@ class WebGLVisualizer {
   }
 
   initBuffers(gl) {
-    // Create a buffer for the square's positions.
-
     const positionBuffer = gl.createBuffer();
-
-    // Select the positionBuffer as the one to apply buffer
-    // operations to from here out.
-
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-    // Now create an array of positions for the square.
+    const positions = [];
+    for (let i = 0; i < this.numPoints; i++) {
+      const angle = (i / this.numPoints) * 2 * Math.PI;
+      const radius = 0.8; 
+      const x = radius * Math.cos(angle);
+      const y = radius * Math.sin(angle);
+      positions.push(x, y);
+    }
 
-    const positions = [
-      1.0,  1.0,
-      -1.0, 1.0,
-      1.0,  -1.0,
-      -1.0, -1.0,
-    ];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
-    // Now pass the list of positions into WebGL to build the
-    // shape. We do this by creating a Float32Array from the
-    // JavaScript array, then use it to fill the current buffer.
-
-    gl.bufferData(gl.ARRAY_BUFFER,
-                  new Float32Array(positions),
-                  gl.STATIC_DRAW);
+    const frequencyBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, frequencyBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.numPoints), gl.DYNAMIC_DRAW);
 
     return {
       position: positionBuffer,
+      frequency: frequencyBuffer,
     };
   }
 
   drawScene(dataArray, sensitivity) {
     const gl = this.gl;
 
-    // Clear the canvas before we start drawing on it.
+    for (let i = 0; i < this.numPoints; i++) {
+      this.frequencyData[i] = dataArray[i] / 255.0 * sensitivity; // Apply sensitivity
+    }
 
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
-    gl.clearDepth(1.0);                 // Clear everything
-    gl.enable(gl.DEPTH_TEST);           // Enable depth testing
-    gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
-
-    // Clear the canvas before we start drawing on it.
-
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clearDepth(1.0);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // Tell WebGL how to pull out the positions from the position
-    // buffer into the vertexPosition attribute.
-    {
-      const numComponents = 2;  // pull out 2 values per iteration
-      const type = gl.FLOAT;    // the data in the buffer is 32bit floats
-      const normalize = false;  // don't normalize
-      const stride = 0;         // how many bytes to get from one set of values to the next
-                                // 0 = use type and numComponents above
-      const offset = 0;         // how many bytes inside the buffer to start from
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.position);
-      gl.vertexAttribPointer(
-          this.programInfo.attribLocations.vertexPosition,
-          numComponents,
-          type,
-          normalize,
-          stride,
-          offset);
-      gl.enableVertexAttribArray(
-          this.programInfo.attribLocations.vertexPosition);
-    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.position);
+    gl.vertexAttribPointer(
+      this.programInfo.attribLocations.vertexPosition,
+      2,
+      gl.FLOAT,
+      false,
+      0,
+      0
+    );
+    gl.enableVertexAttribArray(this.programInfo.attribLocations.vertexPosition);
 
-    // Tell WebGL to use our program when drawing
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.frequency);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.frequencyData);
+    gl.vertexAttribPointer(
+      this.programInfo.attribLocations.frequency,
+      1,
+      gl.FLOAT,
+      false,
+      0,
+      0
+    );
+    gl.enableVertexAttribArray(this.programInfo.attribLocations.frequency);
 
     gl.useProgram(this.programInfo.program);
-
-    // Set the shader uniforms
-    gl.uniform1f(this.programInfo.uniformLocations.frequency, dataArray[0] / 255.0 * sensitivity);
-
-    // Draw the square
-
-    {
-      const offset = 0;
-      const vertexCount = 4;
-      gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
-    }
+    gl.drawArrays(gl.LINE_STRIP, 0, this.numPoints);
   }
 }
 
