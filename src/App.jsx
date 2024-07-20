@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
 import { CSSTransition } from 'react-transition-group';
+import WebGLVisualizer from './WebGLVisualizer';
 
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 const analyser = audioContext.createAnalyser();
@@ -17,14 +18,13 @@ function App() {
   const [audioSrc, setAudioSrc] = useState(null);
   const [selectedSongTitle, setSelectedSongTitle] = useState('');
   const [sensitivity, setSensitivity] = useState(1);
-  const [prevDataArray, setPrevDataArray] = useState(null);
   const [volume, setVolume] = useState(1);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const webGLVisualizerRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const canvasCtx = canvas.getContext('2d');
     const audio = audioRef.current;
 
     if (!dataArrayRef.current) {
@@ -33,35 +33,16 @@ function App() {
       dataArrayRef.current = new Uint8Array(bufferLengthRef.current);
     }
 
+    if (!webGLVisualizerRef.current) {
+      webGLVisualizerRef.current = new WebGLVisualizer(canvas);
+    }
+
     const draw = () => {
       requestAnimationFrame(draw);
 
       analyser.getByteFrequencyData(dataArrayRef.current);
 
-      canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const barWidth = (canvas.width / bufferLengthRef.current) * 2.5;
-      let barHeight;
-      let x = 0;
-
-      const gradient = canvasCtx.createLinearGradient(0, 0, canvas.width, 0);
-      gradient.addColorStop(0, 'green');
-      gradient.addColorStop(1, 'red');
-
-      for (let i = 0; i < bufferLengthRef.current; i++) {
-        barHeight = dataArrayRef.current[i] * sensitivity;
-
-        if (prevDataArray && Math.abs(barHeight - prevDataArray[i]) < 5) {
-          continue;
-        }
-
-        canvasCtx.fillStyle = gradient;
-        canvasCtx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
-
-        x += barWidth + 1;
-      }
-
-      setPrevDataArray([...dataArrayRef.current]);
+      webGLVisualizerRef.current.drawScene(dataArrayRef.current, sensitivity);
     };
 
     draw();

@@ -10,6 +10,7 @@ This is a simple music visualizer application built using React and the Web Audi
 - Adjust volume of the audio playback
 - Displays the actual duration of the song
 - Shows a progress bar indicating how much of the song is left
+- Offloads visualization work to the GPU using WebGL
 
 ## Getting Started
 
@@ -73,3 +74,7 @@ To learn more about React, Vite, and the Web Audio API, check out the following 
 - [React Documentation](https://reactjs.org/)
 - [Vite Documentation](https://vitejs.dev/)
 - [Web Audio API Documentation](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
+
+### WebGL Requirements and Compatibility
+
+This application uses WebGL for audio visualization. Please ensure that your browser supports WebGL and that it is enabled. For more information on WebGL compatibility, visit [WebGL Compatibility](https://get.webgl.org/).
