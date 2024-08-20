@@ -78,3 +78,6 @@ To learn more about React, Vite, and the Web Audio API, check out the following 
 ### WebGL Requirements and Compatibility
 
 This application uses WebGL for audio visualization. Please ensure that your browser supports WebGL and that it is enabled. For more information on WebGL compatibility, visit [WebGL Compatibility](https://get.webgl.org/).
+
+## Demo
+![demo](demo.png)
